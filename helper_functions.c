@@ -1,6 +1,11 @@
 #include "cub3d.h"
-#include <stdlib.h>
-#include <string.h>
+
+void  render_frame(t_data *data)
+{
+  draw_map(data);
+  mlx_put_image_to_window(data->mlx, data->win, data->img, 0, 0);
+}
+
 
 char	*ft_strcpy(char *dst, const char *src)
 {
@@ -40,7 +45,7 @@ void  add_back(t_cub3d **list, t_cub3d *new)
 t_cub3d *new_node(char *content)
 {
   t_cub3d *node;
-  
+
   node = malloc(sizeof(t_cub3d));
   if (!node)
     return (NULL);

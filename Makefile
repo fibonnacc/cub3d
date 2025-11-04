@@ -16,7 +16,7 @@ GET_NEXT_LINE_SRCS = 	$(GET_NEXT_LINE_DIR)/get_next_line.c \
 						$(GET_NEXT_LINE_DIR)/get_next_line_utils.c
 
 # Source files for mandatory version
-CUB3D_SRCS = main.c helper_functions.c
+CUB3D_SRCS = main.c helper_functions.c init.c
 SRCS = $(GET_NEXT_LINE_SRCS) $(CUB3D_SRCS)
 OBJS = $(SRCS:.c=.o)
 
@@ -31,10 +31,10 @@ $(NAME): $(OBJS)
 	$(CC) $(CFLAGS) -I/usr/include/minilibx-linux -c $< -o $@
 
 clean:
-	@ rm -f $(OBJS)
+	rm -f $(OBJS)
 
 fclean: clean
-	@ rm -f $(NAME)
+	rm -f $(NAME)
 
 re: fclean all
 
