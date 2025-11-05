@@ -127,13 +127,13 @@ int key_press(int keycode, t_data *data)
     double new_y = data->player.y;
     
     // Arrow keys or WASD
-    if (keycode == 65363 || keycode == 'd') // Right arrow or D
+    if (keycode == 65363 || keycode == 'j') // Right arrow or D
         new_x += move_speed;
-    else if (keycode == 65361 || keycode == 'a') // Left arrow or A
+    else if (keycode == 65361 || keycode == 'k') // Left arrow or A
         new_x -= move_speed;
-    else if (keycode == 65362 || keycode == 'w') // Up arrow or W
+    else if (keycode == 65362 || keycode == 'h') // Up arrow or W
         new_y -= move_speed;
-    else if (keycode == 65364 || keycode == 's') // Down arrow or S
+    else if (keycode == 65364 || keycode == 'l') // Down arrow or S
         new_y += move_speed;
     else if (keycode == 65307) // ESC key
     {
@@ -175,9 +175,6 @@ void init_mlx(t_data *data)
   data->win = mlx_new_window(data->mlx, 600, 500, "Hicham el fatihi");
   data->img = mlx_new_image(data->mlx, WIN_WIDTH, WIN_HEIGHT);
   data->addr = mlx_get_data_addr(data->img, &data->bits_per_pixels, &data->line_length, &data->endian);
-  printf("the value of line_length : %d\n", data->line_length);
-  printf("the value of the bits_per_pixels : %d\n", data->bits_per_pixels);
-  printf("the value of the endian : %d\n", data->endian);
 
   int tile_width = WIN_WIDTH / data->map_width;
   int tile_height = WIN_HEIGHT / data->map_height;

@@ -55,7 +55,6 @@ void  make_copy_map(int ac, char *av[])
     add_back(&head, new_node(line));
     free(line);
   }
-  // print_list(head);
   clear_list(&head);
   close (fd);
 }
