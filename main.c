@@ -81,10 +81,10 @@ int main(int ac, char *av[])
 
   data->maps = creat_map();
 
-  data->map_width = 12;
+  data->map_width = 17;
   data->map_height = 10;
 
-  data->player.x = 1.0;
+  data->player.x = 3.5;
   data->player.y = 2.0;
 
   init_mlx(data);

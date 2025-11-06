@@ -251,6 +251,7 @@ bpp2	minilibx-linux/test/main.c	/^int	bpp2;$/;"	v	typeref:typename:int
 bpp3	minilibx-linux/test/main.c	/^int	bpp3;$/;"	v	typeref:typename:int
 bpp4	minilibx-linux/test/main.c	/^int	bpp4;$/;"	v	typeref:typename:int
 check	minilibx-linux/Makefile.mk	/^check: all$/;"	t
+check_collision	init.c	/^int check_collision(t_data *data, double new_x, double new_y)$/;"	f	typeref:typename:int
 check_my_line	get_next_line/get_next_line.c	/^char	*check_my_line(char *line)$/;"	f	typeref:typename:char *
 check_new_line	get_next_line/get_next_line.c	/^char	*check_new_line(char *line)$/;"	f	typeref:typename:char *
 clean	Makefile	/^clean:$/;"	t
@@ -315,6 +316,7 @@ img	cub3d.h	/^  void *img;$/;"	m	struct:s_data	typeref:typename:void *
 init_mlx	init.c	/^void init_mlx(t_data *data)$/;"	f	typeref:typename:void
 key_hook	minilibx-linux/mlx_int.h	/^	int					(*key_hook)();$/;"	m	struct:s_win_list	typeref:typename:int (*)()
 key_param	minilibx-linux/mlx_int.h	/^	void				*key_param;$/;"	m	struct:s_win_list	typeref:typename:void *
+key_press	init.c	/^int key_press(int keycode, t_data *data)$/;"	f	typeref:typename:int
 key_win1	minilibx-linux/test/main.c	/^int	key_win1(int key,void *p)$/;"	f	typeref:typename:int
 key_win2	minilibx-linux/test/main.c	/^int	key_win2(int key,void *p)$/;"	f	typeref:typename:int
 key_win3	minilibx-linux/test/main.c	/^int	key_win3(int key,void *p)$/;"	f	typeref:typename:int
