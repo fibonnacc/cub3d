@@ -16,7 +16,7 @@ GET_NEXT_LINE_SRCS = 	$(GET_NEXT_LINE_DIR)/get_next_line.c \
 						$(GET_NEXT_LINE_DIR)/get_next_line_utils.c
 
 # Source files for mandatory version
-CUB3D_SRCS = main.c helper_functions.c init.c
+CUB3D_SRCS = main.c helper_functions.c init.c draw_layers.c draw_rayes.c
 SRCS = $(GET_NEXT_LINE_SRCS) $(CUB3D_SRCS)
 OBJS = $(SRCS:.c=.o)
 

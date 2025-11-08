@@ -86,6 +86,7 @@ int main(int ac, char *av[])
 
   data->player.x = 3.5;
   data->player.y = 2.0;
+  data->player.angle = 0.0;
 
   init_mlx(data);
 
