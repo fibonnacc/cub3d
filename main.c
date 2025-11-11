@@ -91,7 +91,7 @@ int main(int ac, char *av[])
   init_mlx(data);
 
   render_frame(data);
-  mlx_key_hook(data->win, key_press, data);
+  mlx_hook(data->win, 2, 1L<<0 ,key_press, data);
 
   // make_copy_map(ac, av);
   mlx_loop(data->mlx);
