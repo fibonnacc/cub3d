@@ -1,28 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   angle_directions.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nafarid <nafarid@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/29 10:54:11 by nafarid           #+#    #+#             */
-/*   Updated: 2025/09/25 15:40:48 by nafarid          ###   ########.fr       */
+/*   Created: 2025/11/28 10:40:32 by helfatih          #+#    #+#             */
+/*   Updated: 2025/12/02 17:42:28 by nafarid          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
-# ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 1000
-# endif
+#include "cub3d.h"
 
-# include "../libft/libft.h"
-# include <fcntl.h>
-# include <stdio.h>
-# include <stdlib.h>
-# include <unistd.h>
+bool	facing_down(double angle)
+{
+	return (sin(angle) > 0);
+}
 
-char	*get_next_line(int fd);
-char	*ft_strjoinn(char *buffer, char *line);
-int		ft_strchrr(char *s, char c);
-#endif
+bool	facing_up(double angle)
+{
+	return (sin(angle) < 0);
+}
+
+bool	facing_left(double angle)
+{
+	return (cos(angle) < 0);
+}
+
+bool	facing_right(double angle)
+{
+	return (cos(angle) > 0);
+}

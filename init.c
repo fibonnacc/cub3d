@@ -1,289 +1,73 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nafarid <nafarid@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/28 10:56:18 by helfatih          #+#    #+#             */
+/*   Updated: 2025/12/02 17:51:59 by nafarid          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "cub3d.h"
 
-void  my_mlx_pixel_put(t_data *data, int x, int y, int color)
+void	set_direction(t_data *data, int x, int y)
 {
-  char *dst;
+	char	c;
 
-  int win_width = data->map_width * data->tile_size;
-  int win_height = data->map_height * data->tile_size;
-
-  if (y < 0 || y >= win_height || x < 0 || x >= win_width)
-    return ;
-  dst = data->addr + (y * data->line_length + x * (data->bits_per_pixels / 8));
-  *(unsigned int*)dst = color;
+	c = data->map->map[x][y];
+	if (c == 'N')
+		data->player.angle = 3 * M_PI / 2;
+	else if (c == 'S')
+		data->player.angle = M_PI / 2;
+	else if (c == 'E')
+		data->player.angle = 0;
+	else if (c == 'W')
+	{
+		data->player.angle = M_PI;
+	}
 }
 
-void draw_square(t_data *data, int x, int y, int size, int color)
+int	is_wall(t_data *data, double x, double y)
 {
-  for (int i = 0; i < size; i++)
-  {
-    for (int j = 0; j < size; j++)
-    {
-      my_mlx_pixel_put(data, x + j, y + i, color);
-    }
-  }
+	int	map_x;
+	int	map_y;
+
+	map_x = (int)x;
+	map_y = (int)y;
+	if (map_x < 0 || map_x >= data->map_width || map_y < 0
+		|| map_y >= data->map_height)
+		return (1);
+	return (data->map->map[map_y][map_x] == '1');
 }
 
-void  draw_map(t_data *data)
+int	check_collision_with_radius(t_data *data, double x, double y)
 {
-  int i;
-  int j;
+	double	radius;
 
-  i = 0;
-  while (i < WIN_HEIGHT)
-  {
-    j = 0;
-    while (j < WIN_WIDTH)
-    {
-      my_mlx_pixel_put(data, i, j, 0x000000);
-      j++;
-    }
-    i++;
-  }
-
-  i = 0;
-  while (i < data->map_height)
-  {
-    j = 0;
-    while (j < data->map_width)
-    {
-      int x = i * data->tile_size;
-      int y = j * data->tile_size;
-
-      if (data->maps[i][j] == '1')
-        draw_square(data, y, x, data->tile_size, 0xFF0000);
-      // else {
-      //   draw_square(data, x, y, data->tile_size, 0x00FF00);
-      // }
-
-      for (int k = 0; k < data->tile_size; k++)
-      {
-        my_mlx_pixel_put(data, y + k, x, 0xFFFF00);
-        my_mlx_pixel_put(data, y, x + k, 0xFFFF00);
-      }
-      j++;
-    }
-    i++;
-  }
-  draw_player(data);
+	radius = 0.09;
+	if (is_wall(data, x + radius, y) || is_wall(data, x - radius, y)
+		|| is_wall(data, x, y - radius) || is_wall(data, x, y + radius))
+		return (1);
+	return (0);
 }
 
-char **creat_map()
+void	draw_player(t_data *data)
 {
-  int i;
-  char **maps = malloc(sizeof(char *) * 10);
-  if (!maps)
-    return (NULL);
-  char temp_maps[10][18] = {
-    "11111111111111111",
-    "10000000000101001",
-    "10000000000101001",
-    "10001111110101001",
-    "10001111110101001",
-    "10001111110101001",
-    "10000000000101001",
-    "10000000000101001",
-    "10000000000101001",
-    "11111111111111111"
-  };
-
-  i = 0;
-  while (i < 10)
-  {
-    maps[i] = malloc(18);
-    if (!maps[i])
-    {
-      while (--i >= 0)
-      {
-        free(maps[i]);
-      }
-      free(maps);
-      return NULL;
-    }
-    ft_strcpy(maps[i], temp_maps[i]);
-    i++;
-  }
-  return (maps);
+	draw_fov_with_walls(data);
 }
 
-int check_collision(t_data *data, double new_x, double new_y)
+bool	init_mlx(t_data *data)
 {
-  int map_x = (int)new_x;
-  int map_y = (int)new_y;
-
-  // Check boundaries
-  if (map_x < 0 || map_x >= data->map_width || 
-    map_y < 0 || map_y >= data->map_height)
-    return (1); // Collision with boundary
-
-  // Check if position is a wall
-  if (data->maps[map_y][map_x] == '1')
-    return (1); // Collision with wall
-
-  return (0); // No collision
+	data->mlx = mlx_init();
+	init_location(data);
+	if (!upload_textures(data))
+		return (false);
+	data->win = mlx_new_window(data->mlx, WIN_WIDTH, WIN_HEIGHT,
+			"CubeVision");
+	data->img = mlx_new_image(data->mlx, WIN_WIDTH, WIN_HEIGHT);
+	data->addr = mlx_get_data_addr(data->img, &data->bits_per_pixels,
+			&data->line_length, &data->endian);
+	return (true);
 }
-
-int key_press(int keycode, t_data *data)
-{
-  double move_speed = 0.4;
-  double new_x = data->player.x;
-  double new_y = data->player.y;
-
-  // === ROTATION (a/d + arrows) ===
-  if (keycode == 'd' || keycode == 65363)  // D or Right arrow - rotate right
-  {
-    data->player.angle += ROT_SPEED;
-    if (data->player.angle >= 2 * M_PI)
-      data->player.angle -= 2 * M_PI;
-    render_frame(data);
-    return (0);
-  }
-  else if (keycode == 'a' || keycode == 65361)  // A or Left arrow - rotate left
-  {
-    data->player.angle -= ROT_SPEED;
-    if (data->player.angle < 0)
-      data->player.angle += 2 * M_PI;
-    render_frame(data);
-    return (0);
-  }
-
-  // === FORWARD/BACKWARD (w/s or k/j) ===
-  else if (keycode == 'w' || keycode == 'k' || keycode == 65362)  // Forward (W/K/Up)
-  {
-    new_x += cos(data->player.angle) * move_speed;  // ✅ Fixed
-    new_y += sin(data->player.angle) * move_speed;  // ✅ Fixed
-  }
-  else if (keycode == 's' || keycode == 'j' || keycode == 65364)  // Backward (S/J/Down)
-  {
-    new_x -= cos(data->player.angle) * move_speed;  // ✅ Fixed
-    new_y -= sin(data->player.angle) * move_speed;  // ✅ Fixed
-  }
-
-  // === STRAFE LEFT/RIGHT (h/l only) ===
-  else if (keycode == 'h')  // Strafe left (no arrow conflict)
-  {
-    new_x += cos(data->player.angle - M_PI/2) * move_speed;
-    new_y += sin(data->player.angle - M_PI/2) * move_speed;
-  }
-  else if (keycode == 'l')  // Strafe right (no arrow conflict)
-  {
-    new_x += cos(data->player.angle + M_PI/2) * move_speed;
-    new_y += sin(data->player.angle + M_PI/2) * move_speed;
-  }
-
-  // === EXIT ===
-  else if (keycode == 65307)  // ESC
-  {
-    mlx_destroy_window(data->mlx, data->win);
-    exit(0);
-  }
-
-  // Apply movement if no collision
-  if (!check_collision(data, new_x, new_y))
-  {
-    data->player.x = new_x;
-    data->player.y = new_y;
-    render_frame(data);
-  }
-
-  return (0);
-}
-
-// int key_press(int keycode, t_data *data)
-// {
-//   double move_speed = 0.4;
-//   double new_x = data->player.x;
-//   double new_y = data->player.y;
-//
-//   // Correct Vim keys: h=left, j=down, k=up, l=right
-//   if (keycode == 'd' || keycode == 65363)  // Right arrow - rotate right
-//   {
-//     data->player.angle += ROT_SPEED;
-//     if (data->player.angle >= 2 * M_PI)  // Keep angle in 0 to 2π range
-//       data->player.angle -= 2 * M_PI;
-//     render_frame(data);
-//     return (0);
-//   }
-//
-//   else if (keycode == 'a' || keycode == 65361)  // Left arrow - rotate left
-//   {
-//     data->player.angle -= ROT_SPEED;
-//     if (data->player.angle < 0)  // Keep angle in 0 to 2π range
-//         data->player.angle += 2 * M_PI;
-//     render_frame(data);
-//     return (0);
-//   }
-//
-//   else if (keycode == 'l' || keycode == 65363) // Right
-//   {
-//     new_x += cos(data->player.angle + M_PI/2) * move_speed;
-//     new_y += sin(data->player.angle + M_PI/2) * move_speed;
-//   }
-//   else if (keycode == 'h' || keycode == 65361) // Left
-//   {
-//     new_x += cos(data->player.angle - M_PI/2) * move_speed;
-//     new_y += sin(data->player.angle - M_PI/2) * move_speed;
-//   }
-//   else if (keycode == 'k' || keycode == 65362) // Up
-//   {
-//     new_y += cos(data->player.angle) * move_speed;
-//     new_x += sin(data->player.angle) * move_speed;
-//   }
-//   else if (keycode == 'j' || keycode == 65364) // Down
-//   {
-//     new_y -= cos(data->player.angle) * move_speed;
-//     new_x -= sin(data->player.angle) * move_speed;
-//
-//   }
-//   else if (keycode == 65307) // ESC key
-//   {
-//     mlx_destroy_window(data->mlx, data->win);
-//     exit(0);
-//   }
-//
-//   if (!check_collision(data, new_x, new_y))
-//   {
-//     data->player.x = new_x;
-//     data->player.y = new_y;
-//     render_frame(data);
-//   }
-//
-//   return (0);
-// }
-
-void draw_player(t_data *data)
-{
-  int player_screen_x = (int)(data->player.x * data->tile_size);
-  int player_screen_y = (int)(data->player.y * data->tile_size);
-  int player_size = data->tile_size / 3; // Player is 1/3 of a tile
-
-  draw_fov_with_walls(data);
-  // Draw player as a colored square (you can make it a circle if you want)
-  for (int i = -player_size/2; i < player_size/2; i++)
-  {
-    for (int j = -player_size/2; j < player_size/2; j++)
-    {
-      my_mlx_pixel_put(data, player_screen_x + j, player_screen_y + i, 0xFF0270); // Red color
-    }
-  }
-  // draw_direction_line(data);
-}
-
-void init_mlx(t_data *data)
-{
-  data->mlx = mlx_init();
-
-  // Calculate proper tile size and window dimensions
-  int tile_width = WIN_WIDTH / data->map_width;
-  int tile_height = WIN_HEIGHT / data->map_height;
-  data->tile_size = (tile_width < tile_height) ? tile_width : tile_height;
-
-  // Calculate actual window size to fit the map perfectly
-  int window_width = data->map_width * data->tile_size;
-  int window_height = data->map_height * data->tile_size;
-
-  data->win = mlx_new_window(data->mlx, window_width, window_height, "Hicham el fatihi");
-  data->img = mlx_new_image(data->mlx, window_width, window_height);
-  data->addr = mlx_get_data_addr(data->img, &data->bits_per_pixels, &data->line_length, &data->endian);
-}
-

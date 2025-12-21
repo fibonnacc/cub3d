@@ -1,42 +1,31 @@
-# Executable name
+
+SRCS = main.c helper_functions.c intersection.c get_texture_color.c scaling.c ray_casting.c angle_directions.c init.c draw_rayes.c make_textures.c \
+		intersection_helper.c movement.c movement_helper.c pixel_by_pixel.c get_next_line/get_next_line.c get_next_line/get_next_line_utils.c \
+		parsing/parsing.c parsing/parsing_utils.c parsing/parsing_utils1.c  get_maps/get_map_utils.c get_maps/get_map_utils1.c\
+		get_maps/get_map.c get_maps/init_data.c cleanup/clean_all.c parsing/parsing_utils2.c
+OBJS = ${SRCS:.c=.o}
+
 NAME = cub3d
-
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -g
-MLX_FLAGS = -I./minilibx-linux -L./minilibx-linux -lmlx -lXext -lX11
+CFLAGS = -Wall -Werror -Wextra -g3
+LDFLAGS = -L./minilibx-linux/ -lmlx_Linux -lXext -lX11
 
-# Directories
+LIBFT = libft/libft.a
 
-GET_NEXT_LINE_DIR = ./get_next_line
-# Libraries
-# -L tells the linker where to look for library files.
-
-LDFLAGS = -L. -lmlx -lX11 -lXext -lm $(PRINTF_LIB)
-GET_NEXT_LINE_SRCS = 	$(GET_NEXT_LINE_DIR)/get_next_line.c \
-						$(GET_NEXT_LINE_DIR)/get_next_line_utils.c
-
-# Source files for mandatory version
-CUB3D_SRCS = main.c helper_functions.c init.c draw_layers.c draw_rayes.c
-SRCS = $(GET_NEXT_LINE_SRCS) $(CUB3D_SRCS)
-OBJS = $(SRCS:.c=.o)
-
-# Rules mandatory
-
-all: $(NAME)
-
-$(NAME): $(OBJS)
-	@ $(CC) $(OBJS) $(LDFLAGS) $(MLX_FLAGS) -o $(NAME)
-
-%.o: %.c
-	$(CC) $(CFLAGS) -I/usr/include/minilibx-linux -c $< -o $@
+${NAME}: ${OBJS}
+	cd libft && ${MAKE}
+	cd minilibx-linux && ${MAKE}
+	${CC} ${CFLAGS} ${OBJS} ${LIBFT} ${LDFLAGS} -lm -o ${NAME}
+all: ${NAME}
 
 clean:
-	rm -f $(OBJS)
+	cd libft && ${MAKE} clean
+	rm -f ${OBJS}
 
 fclean: clean
-	rm -f $(NAME)
+	cd libft && ${MAKE} fclean
+	rm -f ${NAME}
 
 re: fclean all
 
-.SECONDARY : $(OBJS)
 .PHONY: all clean fclean re

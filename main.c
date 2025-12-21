@@ -1,99 +1,89 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nafarid <nafarid@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/28 10:56:31 by helfatih          #+#    #+#             */
+/*   Updated: 2025/12/07 11:06:01 by nafarid          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "cub3d.h"
-#include <threads.h>
 
-void print_list(t_cub3d *cur)
+void	init_location(t_data *data)
 {
-  t_cub3d *current = cur;
-  while (current)
-  {
-    printf("%s", current->data);
-    current = current->next;
-  }
+	int		i;
+	int		j;
+	char	c;
+
+	i = 0;
+	while (i < data->map_height)
+	{
+		j = 0;
+		while (j < data->map_width)
+		{
+			c = data->map->map[i][j];
+			if (is_player(c))
+			{
+				set_direction(data, i, j);
+				break ;
+			}
+			j++;
+		}
+		i++;
+	}
 }
 
-void clear_list(t_cub3d **list)
+int	validate_args_and_init(t_data **data, int ac)
 {
-  t_cub3d *current;
-  t_cub3d *next;
-
-  if (!list || !*list)
-    return;
-  current = *list;
-  while (current)
-  {
-    next = current->next;
-    free(current->data);
-    free(current);
-    current = next;
-  }
-  current = NULL;
+	if (ac != 2)
+	{
+		printf("Error\ninvalide args!\n");
+		return (0);
+	}
+	*data = ft_malloc(sizeof(t_data));
+	return (1);
 }
 
-void  make_copy_map(int ac, char *av[])
+int	load_and_parse_map(t_data *data, char **av)
 {
-  char *line;
-  int fd;
-  char *maps = av[1];
-  t_cub3d *head = NULL;
-
-  if (ac != 2)
-  {
-    printf("Error\n");
-    return;
-  }
-
-  fd = open(maps, O_RDWR);
-  if (fd < 0)
-  {
-    printf("Error\n");
-    return ;
-  }
-
-  while ((line = get_next_line(fd)))
-  {
-    add_back(&head, new_node(line));
-    free(line);
-  }
-  clear_list(&head);
-  close (fd);
+	open_fd(data, av[1]);
+	if (get_map(data, av) || parsing(data))
+	{
+		printf("Error\nInvalid map.\n");
+		free_grabage();
+		return (0);
+	}
+	return (1);
 }
 
-void free_all(t_data *data)
+static int	close_window(t_data *data)
 {
-  int i = 0;
-  while (i < data->map_height)
-  {
-    free(data->maps[i]);
-    i++;
-  }
-  free(data->maps);
-  free(data);
+	cleanup(data);
+	exit(0);
 }
 
-int main(int ac, char *av[])
+int	main(int ac, char **av)
 {
-  (void)av;
-  (void)ac;
-  t_data *data = malloc(sizeof(t_data));;
-  if (!data)
-    return (1);
+	t_data	*data;
 
-  data->maps = creat_map();
-
-  data->map_width = 17;
-  data->map_height = 10;
-
-  data->player.x = 3.5;
-  data->player.y = 2.0;
-  data->player.angle = 0.0;
-
-  init_mlx(data);
-
-  render_frame(data);
-  mlx_hook(data->win, 2, 1L<<0 ,key_press, data);
-
-  // make_copy_map(ac, av);
-  mlx_loop(data->mlx);
-  free_all(data);
+	if (!validate_args_and_init(&data, ac))
+		return (1);
+	init_data(data);
+	if (!load_and_parse_map(data, av))
+		return (1);
+	if (!init_mlx(data))
+	{
+		printf("Error\nInvalid textures\n");
+		cleanup(data);
+		return (1);
+	}
+	render_frame(data);
+	mlx_hook(data->win, 2, 1L << 0, key_press, data);
+	mlx_hook(data->win, 17, 0, close_window, data);
+	mlx_loop(data->mlx);
+	free_grabage();
+	return (0);
 }
